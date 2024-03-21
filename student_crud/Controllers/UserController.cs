@@ -21,15 +21,15 @@ namespace student_crud.Controllers
         [HttpGet]
         [Route("api/users")]
 
-        public async Task<ActionResult<IEnumerable<UserInput>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            string sql_query = "Select a.Id, a.Name, a.Email, a.Password, a.IsLocked, a.SecurityQuestionId, a.AnswerId From Users a";
-
-            if(_studentContext.Users == null)
+            if (_studentContext.Users == null)
             {
                 return NotFound();
             }
-            return await _studentContext.users.FromSqlRaw(sql_query).ToListAsync();
+            var users = await _studentContext.Users.FromSqlRaw("EXECUTE GetUsers").ToListAsync();
+
+            return users;
         }
 
         [HttpPost]
@@ -113,13 +113,19 @@ namespace student_crud.Controllers
             {
                 return NotFound("No matching users found for deletion.");
             }
+            var userRolesToDelete = _studentContext.UserRoles
+            .Where(ur => ids.Contains(ur.UserId));
 
-            foreach (var user in us)
+            _studentContext.UserRoles.RemoveRange(userRolesToDelete);
+
+            _studentContext.users.RemoveRange(us);
+
+            /*foreach (var user in us)
             {
                 //user.IsLocked = false;
                 //_studentContext.UserRoles.Remove(Id);
                 _studentContext.users.Remove(user);
-            }
+            }*/
 
             await _studentContext.SaveChangesAsync();
 
@@ -140,7 +146,8 @@ namespace student_crud.Controllers
             {
                 return NotFound();
             }
-
+            var userRoles = _studentContext.UserRoles.Where(ur => ur.UserId == id);
+            _studentContext.UserRoles.RemoveRange(userRoles);
             //user.IsLocked = false;
             _studentContext.users.Remove(user);
             await _studentContext.SaveChangesAsync();
