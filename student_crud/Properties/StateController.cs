@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using student_crud.Models;
+using student_crud.Data;
 
 namespace student_crud.Controllers
 {

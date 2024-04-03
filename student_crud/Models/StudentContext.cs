@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace student_crud.Models
+namespace student_crud.Data
 {
-    public class StudentContext : DbContext
+    public class StudentContext :   DbContext
     {
         public StudentContext(DbContextOptions<StudentContext> options) : base(options)
         {

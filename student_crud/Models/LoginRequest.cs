@@ -1,4 +1,4 @@
-﻿namespace student_crud.Models
+﻿namespace student_crud.Data
 {
     public class LoginRequest
     {

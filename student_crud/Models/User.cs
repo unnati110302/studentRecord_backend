@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace student_crud.Models
+namespace student_crud.Data
 {
     public class User
     {

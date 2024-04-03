@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using student_crud.Models;
+using student_crud.Data;
 using System.Data;
 using System.Runtime.InteropServices;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace student_crud.Controllers
@@ -21,7 +22,7 @@ namespace student_crud.Controllers
             _studentContext = studentContext;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
 
         public async Task<ActionResult<IEnumerable<StudentDAO>>> GetStudents(int studentId = 0, int pageNumber = 1, int pageSize = 5, string search = "", string sortAttribute = "", string sortOrder = "")
         {

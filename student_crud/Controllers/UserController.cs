@@ -3,19 +3,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using student_crud.Models;
+using student_crud.Data;
 using System.Data;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static System.Net.Mime.MediaTypeNames;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
+using System.IO;
+using RSA_Angular_.NET_CORE.RSA;
+
 namespace student_crud.Controllers
 {
 
     public class UserController : Controller
     {
         private readonly StudentContext _studentContext;
+        private readonly IRsaHelper _rsaHelper;
 
-        public UserController(StudentContext studentContext)
+        public UserController(StudentContext studentContext, IRsaHelper rsaHelper)
         {
             _studentContext = studentContext;
+            _rsaHelper = rsaHelper;
         }
 
         [HttpGet]
@@ -36,12 +48,11 @@ namespace student_crud.Controllers
         [Route("api/users")]
         public async Task<ActionResult> CreateUser(User users)
         {
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(users.Password);
             var parameters = new[]
             {
                 new SqlParameter("@Name", users.Name),
                 new SqlParameter("@Email", users.Email),
-                new SqlParameter("@Password", hashedPassword),
+                new SqlParameter("@Password", users.Password),
                 new SqlParameter("@IsLocked", users.IsLocked),
                 new SqlParameter("@SecurityQuestionID", users.SecurityQuestionId),
                 new SqlParameter("@AnswerId", users.AnswerId),
@@ -62,11 +73,23 @@ namespace student_crud.Controllers
         {
 
             var user = _studentContext.users.FirstOrDefault(u => u.Email == loginRequest.Email);
-            if (user != null && VerifyPassword(loginRequest.Password, user.Password))
+            if (user != null)
             {
-                var role = await GetUserRole( user.Id);
-                return Ok(new { UserId = user.Id, UserName = user.Name, Role = role });
+
+                var enteredPassword = _rsaHelper.Decrypt(loginRequest.Password);
+                var storedPassword = _rsaHelper.Decrypt(user.Password);
+
+                if (storedPassword.Equals(enteredPassword))
+                {
+                    var role = await GetUserRole(user.Id);
+                    return Ok(new { UserId = user.Id, UserName = user.Name, Role = role });
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
+
             else
             {
                 return Unauthorized();
@@ -155,15 +178,5 @@ namespace student_crud.Controllers
             return Ok();
         }
 
-        private bool VerifyPassword(string inputPassword, string hashedPassword)
-        {
-            bool v = BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
-            Console.WriteLine(inputPassword);
-            Console.WriteLine(BCrypt.Net.BCrypt.HashPassword(inputPassword));
-            Console.WriteLine(hashedPassword);
-            Console.WriteLine(v);
-            return v;
-            //return BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
-        }
     }
 }

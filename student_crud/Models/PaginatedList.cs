@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace student_crud.Models
+namespace student_crud.Data
 {
     public class PaginatedList<T> : List<T>
     {

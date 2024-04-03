@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace student_crud.Models
+namespace student_crud.Data
 {
     public class SecurityQuestion
     {
