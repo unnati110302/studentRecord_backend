@@ -13,6 +13,6 @@ namespace student_crud.Data
         public int SecurityQuestionId { get; set; }
         public int AnswerId { get; set; }
          
-        public string RoleIds {  get; set; }
+        //public string RoleIds {  get; set; }
     }
 }

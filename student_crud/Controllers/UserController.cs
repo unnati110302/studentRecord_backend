@@ -15,10 +15,23 @@ using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 using System.IO;
 using RSA_Angular_.NET_CORE.RSA;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using student_crud.Models;
+using Google.Apis.Auth;
+using Microsoft.Identity.Client;
+using student_crud.Data;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography.X509Certificates;
+
+
 
 namespace student_crud.Controllers
 {
-
     public class UserController : Controller
     {
         private readonly StudentContext _studentContext;
@@ -31,22 +44,23 @@ namespace student_crud.Controllers
         }
 
         [HttpGet]
-        [Route("api/users")]
+        [Route("api/users"), Authorize]
 
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult> GetUsers()
         {
             if (_studentContext.Users == null)
             {
                 return NotFound();
             }
-            var users = await _studentContext.Users.FromSqlRaw("EXECUTE GetUsers").ToListAsync();
+            //var sql = "SELECT a.id as Id, a.Name, Email ,Islocked, b.UserId, STRING_AGG(c.RoleName,', ') as role,Password,SecurityQuestionId,AnswerId from users a left outer join UserRoles b on a.id = b.UserId left outer join Roles c on b.RoleId = c.id group by a.id,a.Name,a.email,islocked,b.UserId,Password,SecurityQuestionId,AnswerId; ";
+            var users = await _studentContext.UserS.FromSqlRaw("EXECUTE GetUsers").ToListAsync();
 
-            return users;
+            return Ok(users);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         [Route("api/users")]
-        public async Task<ActionResult> CreateUser(User users)
+        public async Task<ActionResult> CreateUser(UserInput users)
         {
             var parameters = new[]
             {
@@ -56,7 +70,7 @@ namespace student_crud.Controllers
                 new SqlParameter("@IsLocked", users.IsLocked),
                 new SqlParameter("@SecurityQuestionID", users.SecurityQuestionId),
                 new SqlParameter("@AnswerId", users.AnswerId),
-                new SqlParameter("@Roles", users.RoleIds)
+                new SqlParameter("@Roles", users.role)
             };
 
             var newUserId = await _studentContext.Database.ExecuteSqlRawAsync("EXECUTE sp_insert_user @Name, @Email, @Password, @SecurityQuestionID, @AnswerId, @Roles", parameters);
@@ -72,7 +86,7 @@ namespace student_crud.Controllers
         public async Task<IActionResult> AuthenticateUser(LoginRequest loginRequest)
         {
 
-            var user = _studentContext.users.FirstOrDefault(u => u.Email == loginRequest.Email);
+            var user = _studentContext.Users.FirstOrDefault(u => u.Email == loginRequest.Email);
             if (user != null)
             {
 
@@ -82,6 +96,7 @@ namespace student_crud.Controllers
                 if (storedPassword.Equals(enteredPassword))
                 {
                     var role = await GetUserRole(user.Id);
+
                     return Ok(new { UserId = user.Id, UserName = user.Name, Role = role });
                 }
                 else
@@ -94,20 +109,72 @@ namespace student_crud.Controllers
             {
                 return Unauthorized();
             }
+
+          
         }
 
-        /*private async Task<string?> GetUserRole(StudentContext context, int userId)
+        [HttpPost]
+        [Route("api/authenticate/validate-google-token")]
+        public async Task<IActionResult> ValidatGoogleToken([FromBody] AccessTokenRequest request)
         {
-            var userRole = context.UserRoles.FirstOrDefault(ur => ur.UserId == userId);
-            if (userRole != null)
+            try
             {
-                var role = await context.Roles.FindAsync(userRole.RoleId);
-                return role?.RoleName;
+                string t = request.AccessToken;
+                var payload = await GoogleJsonWebSignature.ValidateAsync(t);
+                var email = payload.Email;
+                var user = _studentContext.Users.FirstOrDefault(u => u.Email == email);
+                if(user != null)
+                {
+                    var role = await GetUserRole(user.Id);
+                    return Ok(new { UserName = user.Name,  Role = role});
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
-            return null;
-        }*/
+            catch (InvalidJwtException)
+            {
+                return BadRequest("Invalid access token");
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+                  
 
-        [HttpGet("role")]
+        [HttpPost("LoginWithMicrosoft")]
+        public async Task<IActionResult> LoginWithMicrosoft(string username)
+        {
+            if (username is null)
+            {
+                throw new ArgumentNullException(nameof(username));
+            }
+
+            try
+            {
+                var user = await _studentContext.Users.FirstOrDefaultAsync(u => u.Email == username);
+
+                if (user != null)
+                {
+                    var role = GetUserRole(user.Id);
+                    return Ok(new { UserId = user.Id, UserName = user.Name, Role =role });
+                }
+                else
+                {
+                    return BadRequest("User not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error logging in with Microsoft: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+    [HttpGet("role")]
         public async Task<List<string>> GetUserRole(int userId)
         {
             var userrole = _studentContext.UserRoles.Where(u => u.UserId == userId).ToList();
@@ -128,7 +195,7 @@ namespace student_crud.Controllers
                 return BadRequest("No IDs provided for deletion.");
             }
 
-            var us = await _studentContext.users
+            var us = await _studentContext.Users
                                                 .Where(s => ids.Contains(s.Id))
                                                 .ToListAsync();
 
@@ -141,14 +208,7 @@ namespace student_crud.Controllers
 
             _studentContext.UserRoles.RemoveRange(userRolesToDelete);
 
-            _studentContext.users.RemoveRange(us);
-
-            /*foreach (var user in us)
-            {
-                //user.IsLocked = false;
-                //_studentContext.UserRoles.Remove(Id);
-                _studentContext.users.Remove(user);
-            }*/
+            _studentContext.Users.RemoveRange(us);
 
             await _studentContext.SaveChangesAsync();
 

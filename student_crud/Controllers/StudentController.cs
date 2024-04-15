@@ -54,7 +54,7 @@ namespace student_crud.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize]
         public async Task<ActionResult<Student>> GetStudent(int id)
         {
             if (_studentContext.Students == null)
@@ -69,7 +69,7 @@ namespace student_crud.Controllers
             return student;
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<ActionResult<Student>> PostStudent(Student student)
         {
             if (!ModelState.IsValid)
@@ -91,7 +91,7 @@ namespace student_crud.Controllers
             return CreatedAtAction(nameof(GetStudent), new { id = student.ID }, student);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize]
         public async Task<ActionResult> PutStudent(int id, Student student)
         {
             if (id != student.ID)

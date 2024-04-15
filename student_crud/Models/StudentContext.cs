@@ -15,6 +15,7 @@ namespace student_crud.Data
         public DbSet<StudentDAO> StudentDAOs { get; set; }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<UserInput> UserS { get; set; }
         public DbSet<UserInput> users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
