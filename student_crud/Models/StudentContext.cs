@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using student_crud.Models;
 
 namespace student_crud.Data
 {
@@ -21,6 +22,15 @@ namespace student_crud.Data
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<SecurityQuestion> SecurityQuestions { get; set; }
         public DbSet<Answer> Answers { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Class> Classes { get; set; }
+        public DbSet<Teacher> Teacher { get; set; }
+        public DbSet<ClassSubjects> ClassSubjects { get; set; }
+        public DbSet<CourseDuration> CourseDurations { get; set; }
+        public DbSet<ClassStudent> ClassStudents { get; set; }
+        public DbSet<TeacherSubjects> TeacherSubjects { get; set; }
+        public DbSet<CourseStudent> CourseStudents { get; set; }
+        public DbSet<ClassSections> ClassSections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +46,68 @@ namespace student_crud.Data
                 .HasOne(ur => ur.Role)
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId);
+
+           /* modelBuilder.Entity<Class>()
+                .HasOne(c => c.Course)
+                .WithMany()
+                .HasForeignKey(c => c.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);*/
+
+            /*modelBuilder.Entity<ClassSubjects>()
+                .HasOne(c => c.Class)
+                .WithMany()
+                .HasForeignKey(c => c.ClassId)
+                .OnDelete(DeleteBehavior.Cascade);*/
+
+            modelBuilder.Entity<CourseDuration>()
+                .HasOne(c => c.Course)
+                .WithMany()
+                .HasForeignKey(c => c.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ClassStudent>()
+                .HasOne(c => c.Class)
+                .WithMany()
+                .HasForeignKey(c => c.ClassId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ClassStudent>()
+                .HasOne(cs => cs.Student)
+                .WithMany()
+                .HasForeignKey(cs => cs.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TeacherSubjects>()
+                .HasOne(cs => cs.Teacher)
+                .WithMany()
+                .HasForeignKey(cs => cs.TeacherId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TeacherSubjects>()
+                .HasOne(cs => cs.Subject)
+                .WithMany()
+                .HasForeignKey(cs => cs.SubjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CourseStudent>()
+                .HasOne(cs => cs.Course)
+                .WithMany()
+                .HasForeignKey(cs => cs.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CourseStudent>()
+                .HasOne(cs => cs.Student)
+                .WithMany()
+                .HasForeignKey(cs => cs.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            /*modelBuilder.Entity<ClassSections>()
+                .HasOne(cs => cs.Class)
+                .WithMany()
+                .HasForeignKey(cs => cs.ClassId)
+                .OnDelete(DeleteBehavior.Cascade);*/
+
+
 
 
             base.OnModelCreating(modelBuilder);
