@@ -6,6 +6,7 @@ using System.Data;
 using student_crud.Models;
 using RSA_Angular_.NET_CORE.RSA;
 using NuGet.DependencyResolver;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace student_crud.Controllers
@@ -19,7 +20,7 @@ namespace student_crud.Controllers
             _studentContext = studentContext;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         [Route("api/courses")]
         public async Task<ActionResult> GetCourses()
         {
@@ -33,7 +34,7 @@ namespace student_crud.Controllers
             return Ok(courses);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         [Route("api/courses")]
         public async Task<ActionResult<Course>> PostCourse([FromBody] Course course)
         {
@@ -48,7 +49,7 @@ namespace student_crud.Controllers
             return CreatedAtAction(nameof(GetCourses), new { id = course.Id }, course);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         [Route("api/get{id}")]
         public async Task<ActionResult<Course>> GetCourse(int id)
         {
@@ -64,7 +65,7 @@ namespace student_crud.Controllers
             return course;
         }
 
-        [HttpPut]
+        [HttpPut, Authorize]
         [Route("api/update/{id}")]
         public async Task<ActionResult<Course>> PutCourse(int id, [FromBody] Course course)
         {

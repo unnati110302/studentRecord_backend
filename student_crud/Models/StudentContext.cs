@@ -29,6 +29,7 @@ namespace student_crud.Data
         public DbSet<CourseDuration> CourseDurations { get; set; }
         public DbSet<ClassStudent> ClassStudents { get; set; }
         public DbSet<TeacherSubjects> TeacherSubjects { get; set; }
+        public DbSet<TeacherSubjectDAO> TeacherSubjectDAOs { get; set; }
         public DbSet<CourseStudent> CourseStudents { get; set; }
         public DbSet<ClassSections> ClassSections { get; set; }
 
@@ -77,17 +78,17 @@ namespace student_crud.Data
                 .HasForeignKey(cs => cs.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<TeacherSubjects>()
+            /*modelBuilder.Entity<TeacherSubjects>()
                 .HasOne(cs => cs.Teacher)
                 .WithMany()
                 .HasForeignKey(cs => cs.TeacherId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade);*/
 
-            modelBuilder.Entity<TeacherSubjects>()
+            /*modelBuilder.Entity<TeacherSubjects>()
                 .HasOne(cs => cs.Subject)
                 .WithMany()
                 .HasForeignKey(cs => cs.SubjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade);*/
 
             modelBuilder.Entity<CourseStudent>()
                 .HasOne(cs => cs.Course)

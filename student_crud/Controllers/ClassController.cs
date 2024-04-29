@@ -48,7 +48,7 @@ namespace student_crud.Controllers
 
         [HttpPost]
         [Route("api/classes")]
-        public async Task<ActionResult<Class>> PostCourse([FromBody] Class classes)
+        public async Task<ActionResult<Class>> PostClass([FromBody] Class classes)
         {
             if (!ModelState.IsValid)
             {

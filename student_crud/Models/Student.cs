@@ -9,7 +9,7 @@ namespace student_crud.Data
         public string Code{get; set;}
 
         [Required(ErrorMessage = "Name is required")]
-        [RegularExpression("^[a-zA-Z]+$", ErrorMessage = "Name should contain only alphabets")] 
+        [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Name should contain only alphabets and spaces")]
         public string Name {get; set;}
 
         [Required(ErrorMessage = "Email is required")]
@@ -25,10 +25,14 @@ namespace student_crud.Data
         public int City { get; set; }
         public int Gender { get; set;}
         public int Status { get; set;}
+        public  int CourseId {  get; set;}
+        public int ClassId { get; set;}
+        public int SectionId {  get; set;}
         public int IsActive {  get; set;}
         public int CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+
     }
 }

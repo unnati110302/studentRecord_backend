@@ -198,6 +198,12 @@ namespace student_crud.Controllers
                 worksheet.Cell(1, 12).Value = "StateId";
                 worksheet.Cell(1, 13).Value = "StateName";
                 worksheet.Cell(1, 14).Value = "CityName";
+                worksheet.Cell(1, 15).Value = "CourseId";
+                worksheet.Cell(1, 16).Value = "ClassId";
+                worksheet.Cell(1, 17).Value = "SectionId";
+                worksheet.Cell(1, 18).Value = "CourseName";
+                worksheet.Cell(1, 19).Value = "ClassName";
+                worksheet.Cell(1, 20).Value = "SectionName";
 
                 // Add data
                 int row = 2;
@@ -217,6 +223,12 @@ namespace student_crud.Controllers
                     worksheet.Cell(row, 12).Value = stu.State;
                     worksheet.Cell(row, 13).Value = stu.StateName;
                     worksheet.Cell(row, 14).Value = stu.CityName;
+                    worksheet.Cell(row, 15).Value = stu.CourseId;
+                    worksheet.Cell(row, 16).Value = stu.ClassId;
+                    worksheet.Cell(row, 17).Value = stu.SectionId;
+                    worksheet.Cell(row, 18).Value = stu.CourseName;
+                    worksheet.Cell(row, 19).Value = stu.ClassName;
+                    worksheet.Cell(row, 20).Value = stu.SectionName;
                     row++;
                 }
 

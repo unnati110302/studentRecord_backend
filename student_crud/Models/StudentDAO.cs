@@ -20,6 +20,12 @@ namespace student_crud.Data
 
         public string? CityName { get; set; }
         public int? Gender { get; set; }
+        public int? CourseId { get; set; }
+        public int? ClassId { get; set; }
+        public int? SectionId { get; set; }
+        public string? CourseName { get; set; }
+        public string? ClassName { get; set; }
+        public string? SectionName { get; set; }
         public int? Status { get; set; }
         public int? IsActive { get; set; }
         public int? CreatedBy { get; set; }

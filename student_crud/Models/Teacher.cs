@@ -12,5 +12,7 @@
         public int ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
 
+        //public virtual ICollection<TeacherSubjects> TeacherSubjects { get; set; }
+
     }
 }
