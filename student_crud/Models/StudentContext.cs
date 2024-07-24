@@ -32,6 +32,7 @@ namespace student_crud.Data
         public DbSet<TeacherSubjectDAO> TeacherSubjectDAOs { get; set; }
         public DbSet<CourseStudent> CourseStudents { get; set; }
         public DbSet<ClassSections> ClassSections { get; set; }
+        public DbSet<TimeTable> TimeTable { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

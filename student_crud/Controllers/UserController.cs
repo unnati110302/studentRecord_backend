@@ -238,5 +238,68 @@ namespace student_crud.Controllers
             return Ok();
         }
 
+        [HttpGet, Authorize]
+        [Route("api/getUser/{id}")]
+        public async Task<ActionResult<UserInput>> GetUser(int id)
+        {
+            var idParam = new SqlParameter("@Id", id);
+
+            var users = await _studentContext.UserS
+                .FromSqlRaw("EXEC uc_GetUserById @Id", idParam)
+                .ToListAsync();
+            var user = users.FirstOrDefault();
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roleName = await GetUserRole(user.Id);
+            //var decryptedPassword = _rsaHelper.Decrypt(user.Password);
+            // Password = decryptedPassword,
+
+            var response = new { User = user, RoleName = roleName };
+
+            return Ok(response);
+
+        }
+
+        [HttpPut, Authorize]
+        [Route("api/updateUser/{id}")]
+        public async Task<ActionResult<UserInput>> PutUsers(int id, UserInput users)
+        {
+            try
+            {
+                if (users == null)
+                {
+                    throw new ArgumentNullException(nameof(users), "User input cannot be null.");
+                }
+                var idParam = new SqlParameter("@Id", id);
+                var nameParam = new SqlParameter("@Name", users.Name);
+                var emailParam = new SqlParameter("@Email", users.Email);
+                var passwordParam = new SqlParameter("@Password", users.Password);
+                var isLockedParam = new SqlParameter("@IsLocked", users.IsLocked);
+                var quesIdParam = new SqlParameter("@SecurityQuestionId", users.SecurityQuestionId);
+                var ansIdParam = new SqlParameter("@AnswerId", users.AnswerId);
+                var roleParam = new SqlParameter("@role", users.role);
+
+                var result = await _studentContext.Database.ExecuteSqlRawAsync("EXEC uc_UpdateUser @Id, @Name, @Email, @Password, @IsLocked, @SecurityQuestionId, @AnswerId, @role",
+                    idParam, nameParam, emailParam, passwordParam, isLockedParam, quesIdParam, ansIdParam, roleParam);
+
+                if (result > 0)
+                {
+                    return Ok(id);
+                }
+                else
+                {
+                    return NotFound("The user with the specified ID was not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 }
